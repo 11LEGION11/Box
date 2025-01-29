@@ -12,13 +12,18 @@ const Rectangle ground = { 0,MAX_HEIGHT - 100,MAX_WIDTH,100 };
 
 struct Boxer {
 	Vector2 Position;
-	Vector2 speed;
+	Vector2 Speed;
 	Vector2 L_Hand_Start_Position;
 	Vector2 R_Hand_Start_Position;
+	Vector2 Block_Position;
+	bool Block_Activate;
+	bool L_Attack;
+	bool R_Attack;
 
 	Rectangle Body;
 	Rectangle L_Hand;
 	Rectangle R_Hand;
+	Rectangle Block;
 	Color Hands_Color;
 };
 
@@ -40,11 +45,6 @@ void UpdateGame();
 /// </summary>
 void DrawGame();
 
-bool first_L_attack = false;
-bool first_R_attack = false;
-bool second_L_attack = false;
-bool second_R_attack = false;
-
 int main()
 {
 	InitWindow(MAX_WIDTH, MAX_HEIGHT, "Бокс");
@@ -65,6 +65,9 @@ int main()
 /// Реализация игры
 /// </summary>
 void InitGame() {
+
+
+
 	Vector2 speed1 = { 20,-5 };
 	Vector2 position = { MAX_WIDTH / 4,MAX_HEIGHT / 2 - 90 };
 	Rectangle Body = { position.x,position.y,50,MAX_HEIGHT / 2 };
@@ -74,12 +77,17 @@ void InitGame() {
 	Rectangle R_Hand = { r_hand_pos.x,r_hand_pos.y,20,20 };
 	Color Hands_color = RED;
 
+	Vector2 Block_Position = r_hand_pos;
+	Rectangle Block = { r_hand_pos.x,r_hand_pos.y,20,70 };
+	bool Block_Activate = false;
+	bool first_L_attack = false;
+	bool first_R_attack = false;
 	Boxer boxer1 = {
-		position,speed1,l_hand_pos,r_hand_pos,Body,L_Hand,R_Hand,Hands_color
+		position,speed1,l_hand_pos,r_hand_pos,Block_Position, Block_Activate,first_L_attack,first_R_attack,Body,L_Hand,R_Hand,Block,Hands_color
 	};
 	boxers.push_back(boxer1);
 
-	Vector2 speed2 = { 20,-5 };
+	Vector2 speed2 = { -20,-5 };
 	Vector2 position2 = { MAX_WIDTH / 2,MAX_HEIGHT / 2 - 90 };
 	Rectangle Body2 = { position2.x,position2.y,50,MAX_HEIGHT / 2 };
 	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 75,Body2.y + Body2.height / 2 };
@@ -88,55 +96,80 @@ void InitGame() {
 	Rectangle R_Hand2 = { r_hand_pos2.x, r_hand_pos2.y,20,20 };
 	Color Hands_color2 = DARKBLUE;
 
+	Vector2 Block_Position2 = r_hand_pos2;
+	Rectangle Block2 = { r_hand_pos2.x,r_hand_pos2.y,20,70 };
+	bool Block_Activate2 = false;
+	bool second_L_attack = false;
+	bool second_R_attack = false;
 	Boxer boxer2 = {
-		position2,speed2,l_hand_pos2,r_hand_pos2,Body2,L_Hand2,R_Hand2,Hands_color2
+		position2,speed2,l_hand_pos2,r_hand_pos2,Block_Position2, Block_Activate2,second_L_attack,second_R_attack,Body2,L_Hand2,R_Hand2,Block2,Hands_color2
 	};
 	boxers.push_back(boxer2);
 }
+bool HandleHit(const Rectangle& body, Boxer& boxer) {
+	if (CheckCollisionRecs(body, boxer.L_Hand))
+	{
+		boxer.L_Hand.x = boxer.L_Hand_Start_Position.x;
+		boxer.L_Hand.y = boxer.L_Hand_Start_Position.y;
+		boxer.L_Attack = false;
+		return true;
+	}
+	if (CheckCollisionRecs(body, boxer.R_Hand))
+	{
+		boxer.R_Hand.x = boxer.R_Hand_Start_Position.x;
+		boxer.R_Hand.y = boxer.R_Hand_Start_Position.y;
+		boxer.R_Attack = false;
+		return true;
+	}
+	return false;
+}
+
+void DoHit(Boxer& boxer) {
+	if (boxer.L_Attack) boxer.L_Hand.x += boxer.Speed.x;
+	if (boxer.R_Attack) boxer.R_Hand.x += boxer.Speed.x;
+}
+
 void UpdateGame() {
 	if (IsKeyPressed(KEY_Q)) {
-		first_L_attack = true;
+		boxers[0].L_Attack = true;
 	}
 	if (IsKeyPressed(KEY_W)) {
-		first_R_attack = true;
+		boxers[0].R_Attack = true;
+	}
+	if (IsKeyPressed(KEY_TWO)) {
+		boxers[0].Block_Activate = true;
+	}
+	if (IsKeyReleased(KEY_TWO)) {
+		boxers[0].Block_Activate = false;
 	}
 	if (IsKeyPressed(KEY_O)) {
-		second_L_attack = true;
+		boxers[1].L_Attack = true;
 	}
 	if (IsKeyPressed(KEY_P)) {
-		second_R_attack = true;
+		boxers[1].R_Attack = true;
 	}
-	if (first_L_attack) boxers[0].L_Hand.x += boxers[0].speed.x;
-	if (first_R_attack) boxers[0].R_Hand.x += boxers[0].speed.x;
-	if (second_L_attack) boxers[1].L_Hand.x -= boxers[1].speed.x;
-	if (second_R_attack) 
-		boxers[1].R_Hand.x -= boxers[1].speed.x;
-
-	if (CheckCollisionRecs(boxers[0].Body, boxers[1].L_Hand))
-	{
-		boxers[1].L_Hand.x = boxers[1].L_Hand_Start_Position.x;
-		boxers[1].L_Hand.y = boxers[1].L_Hand_Start_Position.y;
-		second_L_attack = false;
+	if (IsKeyPressed(KEY_ZERO)) {
+		boxers[1].Block_Activate = true;
+	}
+	if (IsKeyReleased(KEY_ZERO)) {
+		boxers[1].Block_Activate = false;
 	}
 
-	if (CheckCollisionRecs(boxers[0].Body, boxers[1].R_Hand))
+	DoHit(boxers[0]);
+	DoHit(boxers[1]);
+
+	HandleHit(boxers[0].Body, boxers[1]);
+	HandleHit(boxers[1].Body, boxers[0]);
+	if (boxers[0].Block_Activate)
 	{
-		boxers[1].R_Hand.x = boxers[1].R_Hand_Start_Position.x;
-		boxers[1].R_Hand.y = boxers[1].R_Hand_Start_Position.y;
-		second_R_attack = false;
+		HandleHit(boxers[0].Block, boxers[1]);
 	}
-	if (CheckCollisionRecs(boxers[1].Body, boxers[0].L_Hand))
+	if (boxers[1].Block_Activate)
 	{
-		boxers[0].L_Hand.x = boxers[0].L_Hand_Start_Position.x;
-		boxers[0].L_Hand.y = boxers[0].L_Hand_Start_Position.y;
-		first_L_attack = false;
+		HandleHit(boxers[1].Block, boxers[0]);
 	}
-	if (CheckCollisionRecs(boxers[1].Body, boxers[0].R_Hand))
-	{
-		boxers[0].R_Hand.x = boxers[0].R_Hand_Start_Position.x;
-		boxers[0].R_Hand.y = boxers[0].R_Hand_Start_Position.y;
-		first_R_attack = false;
-	}
+
+
 }
 /// <summary>
 /// Рисуем боксеров
@@ -144,8 +177,13 @@ void UpdateGame() {
 /// <param name="boxer"></param>
 void DrawBoxer(const Boxer& boxer) {
 	DrawRectangleRec(boxer.Body, GRAY);
-	DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
-	DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+	if (boxer.Block_Activate) {
+		DrawRectangleRec(boxer.Block, boxer.Hands_Color);
+	}
+	else {
+		DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
+		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+	}
 }
 void DrawGame() {
 	BeginDrawing();

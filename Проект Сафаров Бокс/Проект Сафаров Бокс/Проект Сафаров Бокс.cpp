@@ -82,10 +82,10 @@ void InitGame() {
 	Vector2 speed2 = { 20,-5 };
 	Vector2 position2 = { MAX_WIDTH / 2,MAX_HEIGHT / 2 - 90 };
 	Rectangle Body2 = { position2.x,position2.y,50,MAX_HEIGHT / 2 };
-	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 80,Body2.y + Body2.height / 2 };
+	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 75,Body2.y + Body2.height / 2 };
 	Rectangle L_Hand2 = { l_hand_pos2.x,l_hand_pos2.y, 20, 20 };
-	Vector2 r_hand_pos2 = { Body2.x + Body2.width - 100,Body2.y + Body2.height / 2 - 50 };
-	Rectangle R_Hand2 = { r_hand_pos2.x + r_hand_pos2.y,20,20 };
+	Vector2 r_hand_pos2 = { Body2.x + Body2.width - 80,Body2.y + Body2.height / 2 - 50 };
+	Rectangle R_Hand2 = { r_hand_pos2.x, r_hand_pos2.y,20,20 };
 	Color Hands_color2 = DARKBLUE;
 
 	Boxer boxer2 = {
@@ -109,7 +109,8 @@ void UpdateGame() {
 	if (first_L_attack) boxers[0].L_Hand.x += boxers[0].speed.x;
 	if (first_R_attack) boxers[0].R_Hand.x += boxers[0].speed.x;
 	if (second_L_attack) boxers[1].L_Hand.x -= boxers[1].speed.x;
-	if (second_R_attack) boxers[1].R_Hand.x -= boxers[1].speed.x;
+	if (second_R_attack) 
+		boxers[1].R_Hand.x -= boxers[1].speed.x;
 
 	if (CheckCollisionRecs(boxers[0].Body, boxers[1].L_Hand))
 	{

@@ -162,8 +162,13 @@ void UpdateGame() {
 	DoHit(boxers[0]);
 	DoHit(boxers[1]);
 
-	HandleHit(boxers[0].Body, boxers[1]);
-	HandleHit(boxers[1].Body, boxers[0]);
+	if (HandleHit(boxers[0].Body, boxers[1]) && !boxers[1].Block_Activate) {
+		boxers[0].Health -= boxers[1].Attack;
+	}
+	if (HandleHit(boxers[1].Body, boxers[0]) && !boxers[0].Block_Activate) {
+		boxers[1].Health -= boxers[0].Attack;
+	}
+
 	if (boxers[0].Block_Activate)
 	{
 		HandleHit(boxers[0].Block, boxers[1]);
@@ -178,11 +183,11 @@ void UpdateGame() {
 void DrawHealthBar(const int& Hp,const int& Max_Health,const int& counter) {
 	if (counter == 0)
 	{
-		DrawRectangle(0, 0, Hp, 40, BLACK);
+		DrawRectangle(0, 0, Max_Health, 40, BLACK);
 		DrawRectangle(0, 0 + 5, Hp, 30, RED);
 	}
 	else {
-		DrawRectangle(MAX_WIDTH  - Max_Health, 0, Hp, 40, BLACK);
+		DrawRectangle(MAX_WIDTH  - Max_Health, 0, Max_Health, 40, BLACK);
 		DrawRectangle(MAX_WIDTH - Max_Health, 0 + 5, Hp, 30, RED);
 	}
 }

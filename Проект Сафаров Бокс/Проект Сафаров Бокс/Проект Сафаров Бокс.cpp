@@ -38,6 +38,8 @@ struct Wall {
 	float height;
 };
 
+bool GameOver = false;
+
 void InitGame();
 /// <summary>
 /// Обновление игры
@@ -67,7 +69,10 @@ int main()
 /// <summary>
 /// Реализация игры
 /// </summary>
-void InitGame() {
+void InitGame()
+{
+	boxers.clear();
+	GameOver = false;
 	Vector2 speed1 = { 20,-5 };
 	Vector2 position = { MAX_WIDTH / 4,MAX_HEIGHT / 2 - 90 };
 	Rectangle Body = { position.x,position.y,50,MAX_HEIGHT / 2 };
@@ -133,7 +138,15 @@ void DoHit(Boxer& boxer) {
 	if (boxer.R_Attack) boxer.R_Hand.x += boxer.Speed.x;
 }
 
-void UpdateGame() {
+void UpdateGame() { 
+	if(GameOver == true){
+		if (IsKeyPressed(KEY_ENTER))
+		{
+			InitGame();
+			GameOver = false;
+		}
+		return;
+	}
 	if (IsKeyPressed(KEY_Q)) {
 		boxers[0].L_Attack = true;
 	}
@@ -178,7 +191,13 @@ void UpdateGame() {
 		HandleHit(boxers[1].Block, boxers[0]);
 	}
 
-
+	if (boxers[0].Health <= 0) {
+		GameOver = true;
+	}	
+	if (boxers[1].Health <= 0) {
+		GameOver = true;
+	}
+	
 }
 void DrawHealthBar(const int& Hp,const int& Max_Health,const int& counter) {
 	if (counter == 0)
@@ -208,6 +227,11 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 }
 void DrawGame() {
 	BeginDrawing();
+	if (GameOver) {
+		DrawText("GameOver", 300, 70, 20, YELLOW);
+	EndDrawing();
+		return;
+	}
 	ClearBackground(SKYBLUE);
 	DrawRectangleRec(ground, BROWN);
 	for (int i = 0; i < boxers.size(); i++)

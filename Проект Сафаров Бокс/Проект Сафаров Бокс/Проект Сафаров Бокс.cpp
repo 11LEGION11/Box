@@ -32,6 +32,18 @@ struct Boxer {
 
 std::vector<Boxer> boxers = {};
 
+const char* sky_filename = "./Assets/cloud2.png";
+const char* ground_filename = "./Assets/moss2.png";
+const char* boxer1_filename = "./Assets/maleBase/maleBase/base/base_light.png";
+const char* boxer2_filename = "./Assets/maleBase/maleBase/base/base_dark.png";
+
+Texture2D Ground_Texture = { 0 };
+Texture2D Sky_Texture = { 0 };
+Texture2D Boxer1_Texture = { 0 };
+Texture2D Boxer2_Texture = { 0 };
+
+
+
 struct Wall {
 	Vector2 position;
 	float width;
@@ -71,6 +83,23 @@ int main()
 /// </summary>
 void InitGame()
 {
+	Image image = LoadImage(sky_filename);
+
+	if (image.data != NULL)
+	{
+		ImageResize(&image, MAX_WIDTH, MAX_HEIGHT);
+		Sky_Texture= LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	image = LoadImage(ground_filename);
+
+	if (image.data != NULL)
+	{
+		ImageResize(&image, MAX_WIDTH, MAX_HEIGHT);
+		Ground_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	
 	boxers.clear();
 	GameOver = false;
 	Vector2 speed1 = { 20,-5 };
@@ -114,6 +143,24 @@ void InitGame()
 		position2,speed2,l_hand_pos2,r_hand_pos2,Block_Position2, Block_Activate2,second_L_attack,second_R_attack,Max_Health,Hp,Attack, Body2,L_Hand2,R_Hand2,Block2,Hands_color2
 	};
 	boxers.push_back(boxer2);
+
+	image = LoadImage(boxer1_filename);
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 4,17,22,50 });
+		ImageResize(&image, boxers[0].Body.width, boxers[0].Body.height);
+		Boxer1_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	image = LoadImage(boxer2_filename);
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 4,17,22,50 });
+		ImageResize(&image, boxers[1].Body.width, boxers[1].Body.height);
+		ImageFlipHorizontal(&image);
+		Boxer2_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 }
 bool HandleHit(const Rectangle& body, Boxer& boxer) {
 	if (CheckCollisionRecs(body, boxer.L_Hand))
@@ -215,7 +262,7 @@ void DrawHealthBar(const int& Hp,const int& Max_Health,const int& counter) {
 /// </summary>
 /// <param name="boxer"></param>
 void DrawBoxer(const Boxer& boxer, int counter) {
-	DrawRectangleRec(boxer.Body, GRAY);
+	//DrawRectangleRec(boxer.Body, GRAY);
 	DrawHealthBar(boxer.Health, boxer.Max_Health,counter);
 	if (boxer.Block_Activate) {
 		DrawRectangleRec(boxer.Block, boxer.Hands_Color);
@@ -229,14 +276,18 @@ void DrawGame() {
 	BeginDrawing();
 	if (GameOver) {
 		DrawText("GameOver", 300, 70, 20, YELLOW);
-	EndDrawing();
+		EndDrawing();
 		return;
 	}
-	ClearBackground(SKYBLUE);
+	ClearBackground(RED);
 	DrawRectangleRec(ground, BROWN);
+	DrawTexture(Sky_Texture, 0, 0, RAYWHITE);
+	DrawTexture(Ground_Texture, ground.x, ground.y, GREEN);
 	for (int i = 0; i < boxers.size(); i++)
 	{
 		DrawBoxer(boxers[i], i);
 	}
+	DrawTexture(Boxer1_Texture, boxers[0].Position.x, boxers[0].Position.y, RAYWHITE);
+	DrawTexture(Boxer2_Texture, boxers[1].Position.x, boxers[1].Position.y, RAYWHITE);
 	EndDrawing();
 }

@@ -28,6 +28,12 @@ struct Boxer {
 	Rectangle R_Hand;
 	Rectangle Block;
 	Color Hands_Color;
+
+	Texture2D Body_Texture;
+	Texture2D Block_Texture;
+	Texture2D l_hand_Texture;
+	Texture2D r_hand_Texture;
+	
 };
 
 std::vector<Boxer> boxers = {};
@@ -38,16 +44,11 @@ const char* boxer1_filename = "./Assets/maleBase/maleBase/base/base_light.png";
 const char* boxer2_filename = "./Assets/maleBase/maleBase/base/base_dark.png";
 const char* l_hand_filename = "./Assets/Gloves/glove_L.png";
 const char* r_hand_filename = "./Assets/Gloves/glove_R.png";
+const char* Block_filename = "./Assets/maleBase/maleBase/base/base_light.png";
+const char* Block2_filename = "./Assets/maleBase/maleBase/base/base_dark.png";
 
 Texture2D Ground_Texture = { 0 };
 Texture2D Sky_Texture = { 0 };
-Texture2D Boxer1_Texture = { 0 };
-Texture2D Boxer2_Texture = { 0 };
-Texture2D l1_hand_Texture = { 0 };
-Texture2D r1_hand_Texture = { 0 };
-Texture2D l2_hand_Texture = { 0 };
-Texture2D r2_hand_Texture = { 0 };
-Texture2D block_Texture = { 0 };
 
 struct Wall {
 	Vector2 position;
@@ -108,8 +109,8 @@ void InitGame()
 	boxers.clear();
 	GameOver = false;
 	Vector2 speed1 = { 20,-5 };
-	Vector2 position = { MAX_WIDTH / 4,MAX_HEIGHT / 2 - 90 };
-	Rectangle Body = { position.x,position.y,50,MAX_HEIGHT / 2 };
+	Vector2 position = { MAX_WIDTH / 6,MAX_HEIGHT / 2 - 90 };
+	Rectangle Body = { position.x,position.y,80,MAX_HEIGHT / 2 };
 	Vector2 l_hand_pos = { Body.x + Body.width + 5,Body.y + Body.height / 2 };
 	Rectangle L_Hand = { l_hand_pos.x,l_hand_pos.y,50,50 };
 	Vector2 r_hand_pos = { Body.x + Body.width + 10,Body.y + Body.height / 2 - 50 };
@@ -123,84 +124,126 @@ void InitGame()
 	bool Block_Activate = false;
 	bool first_L_attack = false;
 	bool first_R_attack = false;
+	Texture2D body_texture;
+	Texture2D block_texture;
+	Texture2D l_hand_texture;
+	Texture2D r_hand_texture;
+
+	image = LoadImage(boxer1_filename);
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 4,15,22,51 });
+		ImageResize(&image, Body.width, Body.height);
+		body_texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	image = LoadImage(Block_filename);
+	if (image.data != NULL)
+	{
+		//290,150,25*50
+		ImageCrop(&image, { 290,145,24,48 });
+		ImageResize(&image, Body.width, Body.height);
+		block_texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	image = LoadImage(l_hand_filename);
+	if (image.data != NULL)
+	{
+		ImageRotate(&image, 45);
+		ImageResize(&image, L_Hand.width, L_Hand.height);
+		l_hand_texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	image = LoadImage(r_hand_filename);
+	if (image.data != NULL)
+	{
+		ImageRotate(&image, 45);
+		ImageResize(&image, R_Hand.width, R_Hand.height);
+		r_hand_texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+
 	Boxer boxer1 = {
-		position,speed1,l_hand_pos,r_hand_pos,Block_Position, Block_Activate,first_L_attack,first_R_attack,Max_Health,Hp,Attack,Body,L_Hand,R_Hand,Block,Hands_color
+		position,speed1,
+		l_hand_pos,r_hand_pos,
+		Block_Position, Block_Activate,
+		first_L_attack,first_R_attack,
+		Max_Health,Hp,Attack,Body,
+		L_Hand,R_Hand,Block,
+		Hands_color,
+		body_texture,
+		block_texture,
+		l_hand_texture,
+		r_hand_texture
 	};
 	boxers.push_back(boxer1);
 
 	Vector2 speed2 = { -20,-5 };
 	Vector2 position2 = { MAX_WIDTH / 2,MAX_HEIGHT / 2 - 90 };
-	Rectangle Body2 = { position2.x,position2.y,50,MAX_HEIGHT / 2 };
-	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 75,Body2.y + Body2.height / 2 };
+	Rectangle Body2 = { position2.x,position2.y,80,MAX_HEIGHT / 2 };
+	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 110,Body2.y + Body2.height / 2 };
 	Rectangle L_Hand2 = { l_hand_pos2.x,l_hand_pos2.y, 50, 50 };
-	Vector2 r_hand_pos2 = { Body2.x + Body2.width - 80,Body2.y + Body2.height / 2 - 50 };
+	Vector2 r_hand_pos2 = { Body2.x + Body2.width - 120,Body2.y + Body2.height / 2 - 50 };
 	Rectangle R_Hand2 = { r_hand_pos2.x, r_hand_pos2.y,50,50 };
 	Color Hands_color2 = DARKBLUE;
-
-	
 
 	Vector2 Block_Position2 = r_hand_pos2;
 	Rectangle Block2 = { r_hand_pos2.x,r_hand_pos2.y,20,70 };
 	bool Block_Activate2 = false;
 	bool second_L_attack = false;
 	bool second_R_attack = false;
-	Boxer boxer2 = {
-		position2,speed2,l_hand_pos2,r_hand_pos2,Block_Position2, Block_Activate2,second_L_attack,second_R_attack,Max_Health,Hp,Attack, Body2,L_Hand2,R_Hand2,Block2,Hands_color2
-	};
-	boxers.push_back(boxer2);
 
-	image = LoadImage(boxer1_filename);
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 4,17,22,50 });
-		ImageResize(&image, boxers[0].Body.width, boxers[0].Body.height);
-		Boxer1_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(l_hand_filename);
-	if (image.data != NULL)
-	{
-		//ImageCrop(&image, { 4,17,22,50 });
-		ImageRotate(&image, 45);
-		ImageResize(&image, boxers[0].L_Hand.width, boxers[0].L_Hand.height);
-		l1_hand_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}	
-	image = LoadImage(r_hand_filename);
-	if (image.data != NULL)
-	{
-		ImageRotate(&image, 45);
-		ImageResize(&image, boxers[0].R_Hand.width, boxers[0].R_Hand.height);
-		r1_hand_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
 	image = LoadImage(boxer2_filename);
 	if (image.data != NULL)
 	{
-		ImageCrop(&image, { 4,17,22,50 });
-		ImageResize(&image, boxers[1].Body.width, boxers[1].Body.height);
+		ImageCrop(&image, { 4,15,22,51 });
+		ImageResize(&image, Body2.width, Body2.height);
 		ImageFlipHorizontal(&image);
-		Boxer2_Texture = LoadTextureFromImage(image);
+		body_texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	image = LoadImage(Block2_filename);
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 290,145,24,48 });
+		ImageResize(&image, Body2.width, Body2.height);
+		ImageFlipHorizontal(&image);
+		block_texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
 	image = LoadImage(l_hand_filename);
 	if (image.data != NULL)
 	{
 		ImageRotate(&image, 45);
-		ImageResize(&image, boxers[1].L_Hand.width, boxers[1].L_Hand.height);
+		ImageResize(&image, L_Hand.width, L_Hand.height);
 		ImageFlipHorizontal(&image);
-		l2_hand_Texture = LoadTextureFromImage(image);
+		l_hand_texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
 	image = LoadImage(r_hand_filename);
 	if (image.data != NULL)
 	{
 		ImageRotate(&image, 45);
-		ImageResize(&image, boxers[1].R_Hand.width, boxers[1].R_Hand.height);
+		ImageResize(&image, R_Hand.width, R_Hand.height);
 		ImageFlipHorizontal(&image);
-		r2_hand_Texture = LoadTextureFromImage(image);
+		r_hand_texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+
+	Boxer boxer2 = {
+		position2,speed2,
+		l_hand_pos2,r_hand_pos2,
+		Block_Position2, Block_Activate2,
+		second_L_attack,second_R_attack
+		,Max_Health,Hp,Attack, Body2,
+		L_Hand2,R_Hand2,Block2,
+		Hands_color2,
+		body_texture,
+		block_texture,
+		l_hand_texture,
+		r_hand_texture
+	};
+	boxers.push_back(boxer2);
 }
 bool HandleHit(const Rectangle& body, Boxer& boxer) {
 	if (CheckCollisionRecs(body, boxer.L_Hand))
@@ -303,13 +346,18 @@ void DrawHealthBar(const int& Hp,const int& Max_Health,const int& counter) {
 /// <param name="boxer"></param>
 void DrawBoxer(const Boxer& boxer, int counter) {
 	//DrawRectangleRec(boxer.Body, GRAY);
+
 	DrawHealthBar(boxer.Health, boxer.Max_Health,counter);
 	if (boxer.Block_Activate) {
 		DrawRectangleRec(boxer.Block, boxer.Hands_Color);
+		DrawTexture(boxer.Block_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
 	else {
+		DrawTexture(boxer.Body_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 		DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
 		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+		DrawTexture(boxer.l_hand_Texture, boxer.L_Hand.x, boxer.L_Hand.y, RAYWHITE);
+		DrawTexture(boxer.r_hand_Texture, boxer.R_Hand.x, boxer.R_Hand.y, RAYWHITE);
 	}
 }
 void DrawGame() {
@@ -327,11 +375,6 @@ void DrawGame() {
 	{
 		DrawBoxer(boxers[i], i);
 	}
-	DrawTexture(Boxer1_Texture, boxers[0].Position.x, boxers[0].Position.y, RAYWHITE);
-	DrawTexture(Boxer2_Texture, boxers[1].Position.x, boxers[1].Position.y, RAYWHITE);
-	DrawTexture(l1_hand_Texture, boxers[0].L_Hand.x, boxers[0].L_Hand.y, RAYWHITE);
-	DrawTexture(r1_hand_Texture, boxers[0].R_Hand.x, boxers[0].R_Hand.y, RAYWHITE);
-	DrawTexture(l2_hand_Texture, boxers[1].L_Hand.x, boxers[1].L_Hand.y, RAYWHITE);
-	DrawTexture(r2_hand_Texture, boxers[1].R_Hand.x, boxers[1].R_Hand.y, RAYWHITE);
+	
 	EndDrawing();
 }

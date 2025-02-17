@@ -40,12 +40,10 @@ std::vector<Boxer> boxers = {};
 
 const char* sky_filename = "./Assets/cloud2.png";
 const char* ground_filename = "./Assets/moss2.png";
-const char* boxer1_filename = "./Assets/maleBase/maleBase/base/base_light.png";
-const char* boxer2_filename = "./Assets/maleBase/maleBase/base/base_dark.png";
-const char* l_hand_filename = "./Assets/Gloves/glove_L.png";
-const char* r_hand_filename = "./Assets/Gloves/glove_R.png";
-const char* Block_filename = "./Assets/maleBase/maleBase/base/base_light.png";
-const char* Block2_filename = "./Assets/maleBase/maleBase/base/base_dark.png";
+const char* boxer1_filename = "./Assets/Sprite/James.png";
+const char* boxer2_filename = "./Assets/Sprite/James.png";
+const char* Block_filename = "./Assets/Sprite/James.png";
+const char* Block2_filename = "./Assets/Sprite/James.png";
 
 Texture2D Ground_Texture = { 0 };
 Texture2D Sky_Texture = { 0 };
@@ -110,11 +108,11 @@ void InitGame()
 	GameOver = false;
 	Vector2 speed1 = { 20,-5 };
 	Vector2 position = { MAX_WIDTH / 6,MAX_HEIGHT / 2 - 90 };
-	Rectangle Body = { position.x,position.y,80,MAX_HEIGHT / 2 };
-	Vector2 l_hand_pos = { Body.x + Body.width + 5,Body.y + Body.height / 2 };
-	Rectangle L_Hand = { l_hand_pos.x,l_hand_pos.y,50,50 };
-	Vector2 r_hand_pos = { Body.x + Body.width + 10,Body.y + Body.height / 2 - 50 };
-	Rectangle R_Hand = { r_hand_pos.x,r_hand_pos.y,50,50 };
+	Rectangle Body = { position.x,position.y,100,MAX_HEIGHT / 2 };
+	Vector2 l_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 };
+	Rectangle L_Hand = { l_hand_pos.x,l_hand_pos.y,40,40 };
+	Vector2 r_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 - 50 };
+	Rectangle R_Hand = { r_hand_pos.x,r_hand_pos.y,40,40 };
 	Color Hands_color = RED;
 	int Hp = 100;
 	int Max_Health = 100;
@@ -132,7 +130,7 @@ void InitGame()
 	image = LoadImage(boxer1_filename);
 	if (image.data != NULL)
 	{
-		ImageCrop(&image, { 4,15,22,51 });
+		ImageCrop(&image, { 0,4,36,66 });
 		ImageResize(&image, Body.width, Body.height);
 		body_texture = LoadTextureFromImage(image);
 		UnloadImage(image);
@@ -141,25 +139,9 @@ void InitGame()
 	if (image.data != NULL)
 	{
 		//290,150,25*50
-		ImageCrop(&image, { 290,145,24,48 });
+		ImageCrop(&image, { 0,140,34,65 });
 		ImageResize(&image, Body.width, Body.height);
 		block_texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(l_hand_filename);
-	if (image.data != NULL)
-	{
-		ImageRotate(&image, 45);
-		ImageResize(&image, L_Hand.width, L_Hand.height);
-		l_hand_texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(r_hand_filename);
-	if (image.data != NULL)
-	{
-		ImageRotate(&image, 45);
-		ImageResize(&image, R_Hand.width, R_Hand.height);
-		r_hand_texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
 
@@ -173,18 +155,16 @@ void InitGame()
 		Hands_color,
 		body_texture,
 		block_texture,
-		l_hand_texture,
-		r_hand_texture
 	};
 	boxers.push_back(boxer1);
 
 	Vector2 speed2 = { -20,-5 };
-	Vector2 position2 = { MAX_WIDTH / 2,MAX_HEIGHT / 2 - 90 };
-	Rectangle Body2 = { position2.x,position2.y,80,MAX_HEIGHT / 2 };
-	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 110,Body2.y + Body2.height / 2 };
-	Rectangle L_Hand2 = { l_hand_pos2.x,l_hand_pos2.y, 50, 50 };
-	Vector2 r_hand_pos2 = { Body2.x + Body2.width - 120,Body2.y + Body2.height / 2 - 50 };
-	Rectangle R_Hand2 = { r_hand_pos2.x, r_hand_pos2.y,50,50 };
+	Vector2 position2 = { MAX_WIDTH / 1.5,MAX_HEIGHT / 2 - 90 };
+	Rectangle Body2 = { position2.x,position2.y,100,MAX_HEIGHT / 2 };
+	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 170,Body2.y + Body2.height / 2 };
+	Rectangle L_Hand2 = { l_hand_pos2.x,l_hand_pos2.y, 40, 40 };
+	Vector2 r_hand_pos2 = { Body2.x + Body2.width - 170,Body2.y + Body2.height / 2 - 50 };
+	Rectangle R_Hand2 = { r_hand_pos2.x, r_hand_pos2.y,40,40 };
 	Color Hands_color2 = DARKBLUE;
 
 	Vector2 Block_Position2 = r_hand_pos2;
@@ -196,7 +176,7 @@ void InitGame()
 	image = LoadImage(boxer2_filename);
 	if (image.data != NULL)
 	{
-		ImageCrop(&image, { 4,15,22,51 });
+		ImageCrop(&image, { 0,4,36,66 });
 		ImageResize(&image, Body2.width, Body2.height);
 		ImageFlipHorizontal(&image);
 		body_texture = LoadTextureFromImage(image);
@@ -205,28 +185,10 @@ void InitGame()
 	image = LoadImage(Block2_filename);
 	if (image.data != NULL)
 	{
-		ImageCrop(&image, { 290,145,24,48 });
+		ImageCrop(&image, { 0,140,34,65 });
 		ImageResize(&image, Body2.width, Body2.height);
 		ImageFlipHorizontal(&image);
 		block_texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(l_hand_filename);
-	if (image.data != NULL)
-	{
-		ImageRotate(&image, 45);
-		ImageResize(&image, L_Hand.width, L_Hand.height);
-		ImageFlipHorizontal(&image);
-		l_hand_texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(r_hand_filename);
-	if (image.data != NULL)
-	{
-		ImageRotate(&image, 45);
-		ImageResize(&image, R_Hand.width, R_Hand.height);
-		ImageFlipHorizontal(&image);
-		r_hand_texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
 
@@ -239,9 +201,7 @@ void InitGame()
 		L_Hand2,R_Hand2,Block2,
 		Hands_color2,
 		body_texture,
-		block_texture,
-		l_hand_texture,
-		r_hand_texture
+		block_texture
 	};
 	boxers.push_back(boxer2);
 }

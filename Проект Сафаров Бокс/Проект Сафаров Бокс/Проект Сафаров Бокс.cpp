@@ -31,9 +31,8 @@ struct Boxer {
 
 	Texture2D Body_Texture;
 	Texture2D Block_Texture;
-	Texture2D l_hand_Texture;
-	Texture2D r_hand_Texture;
-	
+	Texture2D L_Attack_Texture;
+	Texture2D R_Attack_Texture;
 };
 
 std::vector<Boxer> boxers = {};
@@ -44,6 +43,9 @@ const char* boxer1_filename = "./Assets/Sprite/James.png";
 const char* boxer2_filename = "./Assets/Sprite/James.png";
 const char* Block_filename = "./Assets/Sprite/James.png";
 const char* Block2_filename = "./Assets/Sprite/James.png";
+const char* L_Attack_filename = "./Assets/Sprite/James.png";
+const char* R_Attack_filename = "./Assets/Sprite/James.png";
+
 
 Texture2D Ground_Texture = { 0 };
 Texture2D Sky_Texture = { 0 };
@@ -102,8 +104,8 @@ void InitGame()
 		ImageResize(&image, MAX_WIDTH, MAX_HEIGHT);
 		Ground_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
-	}
-	
+	}	
+
 	boxers.clear();
 	GameOver = false;
 	Vector2 speed1 = { 20,-5 };
@@ -126,6 +128,8 @@ void InitGame()
 	Texture2D block_texture;
 	Texture2D l_hand_texture;
 	Texture2D r_hand_texture;
+	Texture2D L_Attack_Texture;
+	Texture2D R_Attack_Texture;
 
 	image = LoadImage(boxer1_filename);
 	if (image.data != NULL)
@@ -144,6 +148,24 @@ void InitGame()
 		block_texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+	image = LoadImage(L_Attack_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 150,4,48,65 });
+		ImageResize(&image, 220, Body.height);
+		L_Attack_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	image = LoadImage(R_Attack_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 150,73,50,65 });
+		ImageResize(&image, 220, Body.height);
+		R_Attack_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 
 	Boxer boxer1 = {
 		position,speed1,
@@ -155,6 +177,8 @@ void InitGame()
 		Hands_color,
 		body_texture,
 		block_texture,
+		L_Attack_Texture,
+		R_Attack_Texture
 	};
 	boxers.push_back(boxer1);
 
@@ -191,6 +215,26 @@ void InitGame()
 		block_texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+	image = LoadImage(L_Attack_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 150,4,48,65 });
+		ImageResize(&image, 220, Body2.height);
+		ImageFlipHorizontal(&image);
+		L_Attack_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+	image = LoadImage(R_Attack_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 150,73,50,65 });
+		ImageResize(&image, 220, Body2.height);
+		ImageFlipHorizontal(&image);
+		R_Attack_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 
 	Boxer boxer2 = {
 		position2,speed2,
@@ -201,7 +245,9 @@ void InitGame()
 		L_Hand2,R_Hand2,Block2,
 		Hands_color2,
 		body_texture,
-		block_texture
+		block_texture,
+		L_Attack_Texture,
+		R_Attack_Texture
 	};
 	boxers.push_back(boxer2);
 }
@@ -311,13 +357,25 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 	if (boxer.Block_Activate) {
 		DrawRectangleRec(boxer.Block, boxer.Hands_Color);
 		DrawTexture(boxer.Block_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
+		//DrawTexture(boxer.l_hand_Texture, boxer.L_Hand.x, boxer.Position.y, RAYWHITE);
+		//DrawTexture(boxer.r_hand_Texture, boxer.R_Hand.x, boxer.Position.y, RAYWHITE);
+	}
+	else if (boxer.L_Attack)
+	{
+		DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
+		DrawTexture(boxer.L_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
+	}
+	else if (boxer.R_Attack) 
+	{
+		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+		DrawTexture(boxer.R_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
 	else {
 		DrawTexture(boxer.Body_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 		DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
 		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
-		DrawTexture(boxer.l_hand_Texture, boxer.L_Hand.x, boxer.L_Hand.y, RAYWHITE);
-		DrawTexture(boxer.r_hand_Texture, boxer.R_Hand.x, boxer.R_Hand.y, RAYWHITE);
+		//DrawTexture(boxer.l_hand_Texture, boxer.L_Hand.x, boxer.L_Hand.y, RAYWHITE);
+		//DrawTexture(boxer.r_hand_Texture, boxer.R_Hand.x, boxer.R_Hand.y, RAYWHITE);
 	}
 }
 void DrawGame() {

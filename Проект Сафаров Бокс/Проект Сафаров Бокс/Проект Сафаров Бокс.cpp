@@ -110,7 +110,7 @@ void InitGame()
 	GameOver = false;
 	Vector2 speed1 = { 20,-5 };
 	Vector2 position = { MAX_WIDTH / 6,MAX_HEIGHT / 2 - 90 };
-	Rectangle Body = { position.x,position.y,100,MAX_HEIGHT / 2 };
+	Rectangle Body = { position.x,position.y,120,MAX_HEIGHT / 2 };
 	Vector2 l_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 };
 	Rectangle L_Hand = { l_hand_pos.x,l_hand_pos.y,40,40 };
 	Vector2 r_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 - 50 };
@@ -152,7 +152,7 @@ void InitGame()
 
 	if (image.data != NULL)
 	{
-		ImageCrop(&image, { 150,4,48,65 });
+		ImageCrop(&image, { 154,73,46,65 });
 		ImageResize(&image, 220, Body.height);
 		L_Attack_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
@@ -161,7 +161,7 @@ void InitGame()
 
 	if (image.data != NULL)
 	{
-		ImageCrop(&image, { 150,73,50,65 });
+		ImageCrop(&image, { 150,1,50,69 });
 		ImageResize(&image, 220, Body.height);
 		R_Attack_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
@@ -184,7 +184,7 @@ void InitGame()
 
 	Vector2 speed2 = { -20,-5 };
 	Vector2 position2 = { MAX_WIDTH / 1.5,MAX_HEIGHT / 2 - 90 };
-	Rectangle Body2 = { position2.x,position2.y,100,MAX_HEIGHT / 2 };
+	Rectangle Body2 = { position2.x,position2.y,120,MAX_HEIGHT / 2 };
 	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 170,Body2.y + Body2.height / 2 };
 	Rectangle L_Hand2 = { l_hand_pos2.x,l_hand_pos2.y, 40, 40 };
 	Vector2 r_hand_pos2 = { Body2.x + Body2.width - 170,Body2.y + Body2.height / 2 - 50 };
@@ -219,7 +219,7 @@ void InitGame()
 
 	if (image.data != NULL)
 	{
-		ImageCrop(&image, { 150,4,48,65 });
+		ImageCrop(&image, { 154,73,46,65 });
 		ImageResize(&image, 220, Body2.height);
 		ImageFlipHorizontal(&image);
 		L_Attack_Texture = LoadTextureFromImage(image);
@@ -229,7 +229,7 @@ void InitGame()
 
 	if (image.data != NULL)
 	{
-		ImageCrop(&image, { 150,73,50,65 });
+		ImageCrop(&image, { 150,1,50,69 });
 		ImageResize(&image, 220, Body2.height);
 		ImageFlipHorizontal(&image);
 		R_Attack_Texture = LoadTextureFromImage(image);
@@ -363,12 +363,18 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 	else if (boxer.L_Attack)
 	{
 		DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
+		if(counter%2==1)
+			DrawTexture(boxer.L_Attack_Texture, boxer.Position.x - 120, boxer.Position.y, RAYWHITE);
+		else
 		DrawTexture(boxer.L_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
 	else if (boxer.R_Attack) 
 	{
 		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
-		DrawTexture(boxer.R_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
+		if(counter%2==1)
+			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x -100, boxer.Position.y, RAYWHITE);
+		else
+			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
 	else {
 		DrawTexture(boxer.Body_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);

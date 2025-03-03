@@ -357,11 +357,11 @@ void UpdateGame() {
 		boxers[1].Health -= boxers[0].Attack;
 	}
 
-	if (boxers[0].Block_Activate && boxers[0].Dodge_Activate)
+	if (boxers[0].Block_Activate || boxers[0].Dodge_Activate)
 	{
 		HandleHit(boxers[0].Block, boxers[1]);
 	}
-	if (boxers[1].Block_Activate && boxers[1].Dodge_Activate)
+	if (boxers[1].Block_Activate || boxers[1].Dodge_Activate)
 	{
 		HandleHit(boxers[1].Block, boxers[0]);
 	}

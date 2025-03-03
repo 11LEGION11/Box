@@ -33,6 +33,9 @@ struct Boxer {
 	Texture2D Block_Texture;
 	Texture2D L_Attack_Texture;
 	Texture2D R_Attack_Texture;
+
+	bool Dodge_Activate;
+	Texture2D Dodge_Texture;
 };
 
 std::vector<Boxer> boxers = {};
@@ -45,7 +48,7 @@ const char* Block_filename = "./Assets/Sprite/James.png";
 const char* Block2_filename = "./Assets/Sprite/James.png";
 const char* L_Attack_filename = "./Assets/Sprite/James.png";
 const char* R_Attack_filename = "./Assets/Sprite/James.png";
-
+const char* Dodge_filename = "./Assets/Sprite/James.png";
 
 Texture2D Ground_Texture = { 0 };
 Texture2D Sky_Texture = { 0 };
@@ -124,12 +127,14 @@ void InitGame()
 	bool Block_Activate = false;
 	bool first_L_attack = false;
 	bool first_R_attack = false;
+	bool Dodge_Activate = false;
 	Texture2D body_texture;
 	Texture2D block_texture;
 	Texture2D l_hand_texture;
 	Texture2D r_hand_texture;
 	Texture2D L_Attack_Texture;
 	Texture2D R_Attack_Texture;
+	Texture2D Dodge_Texture;
 
 	image = LoadImage(boxer1_filename);
 	if (image.data != NULL)
@@ -166,6 +171,15 @@ void InitGame()
 		R_Attack_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+	image = LoadImage(Dodge_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 133, 140, 37, 60 });
+		ImageResize(&image, Body.width, Body.height);
+		Dodge_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 
 	Boxer boxer1 = {
 		position,speed1,
@@ -178,7 +192,9 @@ void InitGame()
 		body_texture,
 		block_texture,
 		L_Attack_Texture,
-		R_Attack_Texture
+		R_Attack_Texture,
+		Dodge_Activate,
+		Dodge_Texture
 	};
 	boxers.push_back(boxer1);
 
@@ -235,6 +251,16 @@ void InitGame()
 		R_Attack_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+	image = LoadImage(Dodge_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 133, 140, 37, 60 });
+		ImageResize(&image, Body.width, Body.height);
+		ImageFlipHorizontal(&image);
+		Dodge_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 
 	Boxer boxer2 = {
 		position2,speed2,
@@ -247,7 +273,9 @@ void InitGame()
 		body_texture,
 		block_texture,
 		L_Attack_Texture,
-		R_Attack_Texture
+		R_Attack_Texture,
+		Dodge_Activate,
+		Dodge_Texture
 	};
 	boxers.push_back(boxer2);
 }
@@ -295,6 +323,12 @@ void UpdateGame() {
 	if (IsKeyReleased(KEY_TWO)) {
 		boxers[0].Block_Activate = false;
 	}
+	if (IsKeyPressed(KEY_THREE)) {
+		boxers[0].Dodge_Activate = true;
+	}
+	if (IsKeyReleased(KEY_THREE)) {
+		boxers[0].Dodge_Activate = false;
+	}
 	if (IsKeyPressed(KEY_I)) {
 		boxers[1].L_Attack = true;
 	}
@@ -307,22 +341,27 @@ void UpdateGame() {
 	if (IsKeyReleased(KEY_ZERO)) {
 		boxers[1].Block_Activate = false;
 	}
-
+	if (IsKeyPressed(KEY_NINE)) {
+		boxers[1].Dodge_Activate = true;
+	}
+	if (IsKeyReleased(KEY_NINE)) {
+		boxers[1].Dodge_Activate = false;
+	}
 	DoHit(boxers[0]);
 	DoHit(boxers[1]);
 
-	if (HandleHit(boxers[0].Body, boxers[1]) && !boxers[1].Block_Activate) {
+	if (HandleHit(boxers[0].Body, boxers[1]) && !boxers[1].Block_Activate && !boxers[0].Dodge_Activate) {
 		boxers[0].Health -= boxers[1].Attack;
 	}
-	if (HandleHit(boxers[1].Body, boxers[0]) && !boxers[0].Block_Activate) {
+	if (HandleHit(boxers[1].Body, boxers[0]) && !boxers[0].Block_Activate && !boxers[1].Dodge_Activate) {
 		boxers[1].Health -= boxers[0].Attack;
 	}
 
-	if (boxers[0].Block_Activate)
+	if (boxers[0].Block_Activate || boxers[0].Dodge_Activate)
 	{
 		HandleHit(boxers[0].Block, boxers[1]);
 	}
-	if (boxers[1].Block_Activate)
+	if (boxers[1].Block_Activate || boxers[1].Dodge_Activate)
 	{
 		HandleHit(boxers[1].Block, boxers[0]);
 	}
@@ -359,6 +398,10 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 		DrawTexture(boxer.Block_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 		//DrawTexture(boxer.l_hand_Texture, boxer.L_Hand.x, boxer.Position.y, RAYWHITE);
 		//DrawTexture(boxer.r_hand_Texture, boxer.R_Hand.x, boxer.Position.y, RAYWHITE);
+	}
+	else if (boxer.Dodge_Activate) {
+		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+		DrawTexture(boxer.Dodge_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
 	else if (boxer.L_Attack)
 	{

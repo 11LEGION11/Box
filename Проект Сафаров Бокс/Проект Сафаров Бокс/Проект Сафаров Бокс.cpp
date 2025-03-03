@@ -36,7 +36,8 @@ struct Boxer {
 	Texture2D Block_Texture;
 	Texture2D L_Attack_Texture;
 	Texture2D R_Attack_Texture;
-
+	Texture2D Lose;
+	bool Lose_Activate;
 	bool Dodge_Activate;
 	Texture2D Dodge_Texture;
 };
@@ -52,7 +53,7 @@ const char* Block2_filename = "./Assets/Sprite/James.png";
 const char* L_Attack_filename = "./Assets/Sprite/James.png";
 const char* R_Attack_filename = "./Assets/Sprite/James.png";
 const char* Dodge_filename = "./Assets/Sprite/James.png";
-
+const char* Lose_filename = "./Assets/Sprite/James.png";
 Texture2D Ground_Texture = { 0 };
 Texture2D Sky_Texture = { 0 };
 
@@ -133,12 +134,14 @@ void InitGame()
 	bool first_L_attack = false;
 	bool first_R_attack = false;
 	bool Dodge_Activate = false;
+	bool Lose_Activate = false;
 	Texture2D body_texture;
 	Texture2D block_texture;
 	Texture2D l_hand_texture;
 	Texture2D r_hand_texture;
 	Texture2D L_Attack_Texture;
 	Texture2D R_Attack_Texture;
+	Texture2D Lose;
 	Texture2D Dodge_Texture;
 
 	image = LoadImage(boxer1_filename);
@@ -176,6 +179,13 @@ void InitGame()
 		R_Attack_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+	image = LoadImage(Lose_filename);
+	{
+		ImageCrop(&image, { 173,243,65,33 });
+		ImageResize(&image, 220, Body.height);
+		Lose = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 	image = LoadImage(Dodge_filename);
 
 	if (image.data != NULL)
@@ -197,7 +207,7 @@ void InitGame()
 		body_texture,
 		block_texture,
 		L_Attack_Texture,
-		R_Attack_Texture,
+		R_Attack_Texture,Lose,Lose_Activate,
 		Dodge_Activate,
 		Dodge_Texture
 	};
@@ -217,7 +227,7 @@ void InitGame()
 	bool Block_Activate2 = false;
 	bool second_L_attack = false;
 	bool second_R_attack = false;
-
+	Lose_Activate = false;
 	image = LoadImage(boxer2_filename);
 	if (image.data != NULL)
 	{
@@ -256,6 +266,16 @@ void InitGame()
 		R_Attack_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+	image = LoadImage(Lose_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 173, 243, 65, 33 });
+		ImageResize(&image, 220, Body.height);
+		ImageFlipHorizontal(&image);
+		Lose = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 	image = LoadImage(Dodge_filename);
 
 	if (image.data != NULL)
@@ -278,9 +298,9 @@ void InitGame()
 		body_texture,
 		block_texture,
 		L_Attack_Texture,
-		R_Attack_Texture,
+		R_Attack_Texture,Lose,Lose_Activate,
 		Dodge_Activate,
-		Dodge_Texture
+		Dodge_Texture,
 	};
 	boxers.push_back(boxer2);
 }
@@ -396,9 +416,11 @@ void UpdateGame() {
 
 	if (boxers[0].Health <= 0) {
 		GameOver = true;
+		boxers[0].Lose_Activate = true;
 	}	
 	if (boxers[1].Health <= 0) {
 		GameOver = true;
+		boxers[1].Lose_Activate = true;
 	}
 
 }
@@ -433,7 +455,7 @@ void DrawStaminaBar(const int& Stamina, const int& Max_Stamina, const int& count
 void DrawBoxer(const Boxer& boxer, int counter) {
 	//DrawRectangleRec(boxer.Body, GRAY);
 
-	DrawHealthBar(boxer.Health, boxer.Max_Health,counter);
+	DrawHealthBar(boxer.Health, boxer.Max_Health, counter);
 	DrawStaminaBar(boxer.Stamina, boxer.Max_Stamina, counter);
 	if (boxer.Block_Activate) {
 		DrawRectangleRec(boxer.Block, boxer.Hands_Color);
@@ -448,18 +470,21 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 	else if (boxer.L_Attack)
 	{
 		DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
-		if(counter%2==1)
+		if (counter % 2 == 1)
 			DrawTexture(boxer.L_Attack_Texture, boxer.Position.x - 120, boxer.Position.y, RAYWHITE);
 		else
-		DrawTexture(boxer.L_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
+			DrawTexture(boxer.L_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
-	else if (boxer.R_Attack) 
+	else if (boxer.R_Attack)
 	{
 		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
-		if(counter%2==1)
-			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x -100, boxer.Position.y, RAYWHITE);
+		if (counter % 2 == 1)
+			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x - 100, boxer.Position.y, RAYWHITE);
 		else
 			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
+	}
+	else if (boxer.Lose_Activate) {
+		DrawTexture(boxer.Lose, boxer.Position.x, boxer.Position.y + 100, RAYWHITE);
 	}
 	else {
 		DrawTexture(boxer.Body_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
@@ -472,7 +497,15 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 void DrawGame() {
 	BeginDrawing();
 	if (GameOver) {
+		ClearBackground(RED);
+		DrawRectangleRec(ground, BROWN);
+		DrawTexture(Sky_Texture, 0, 0, RAYWHITE);
+		DrawTexture(Ground_Texture, ground.x, ground.y, GREEN);
 		DrawText("GameOver", 300, 70, 20, YELLOW);
+		for (int i = 0; i < boxers.size(); i++)
+		{
+			DrawBoxer(boxers[i], i);
+		}
 		EndDrawing();
 		return;
 	}

@@ -115,7 +115,7 @@ void InitGame()
 
 	boxers.clear();
 	GameOver = false;
-	Vector2 speed1 = { 20,-5 };
+	Vector2 speed1 = { 10,-5 };
 	Vector2 position = { MAX_WIDTH / 6,MAX_HEIGHT / 2 - 90 };
 	Rectangle Body = { position.x,position.y,120,MAX_HEIGHT / 2 };
 	Vector2 l_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 };
@@ -213,7 +213,7 @@ void InitGame()
 	};
 	boxers.push_back(boxer1);
 
-	Vector2 speed2 = { -20,-5 };
+	Vector2 speed2 = { -10,-5 };
 	Vector2 position2 = { MAX_WIDTH / 1.5,MAX_HEIGHT / 2 - 90 };
 	Rectangle Body2 = { position2.x,position2.y,120,MAX_HEIGHT / 2 };
 	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 170,Body2.y + Body2.height / 2 };
@@ -322,13 +322,30 @@ bool HandleHit(const Rectangle& body, Boxer& boxer) {
 	return false;
 }
 
-void DoHit(Boxer& boxer) {
-	if (boxer.L_Attack) boxer.L_Hand.x += boxer.Speed.x;
-	if (boxer.R_Attack) boxer.R_Hand.x += boxer.Speed.x;
+bool DoHit(Boxer& boxer) {
+	if (boxer.L_Attack)
+	{
+		boxer.L_Hand.x += boxer.Speed.x;
+		return true;
+
+	}
+	if (boxer.R_Attack)
+	{
+		boxer.R_Hand.x += boxer.Speed.x;
+		return true;
+	}
+	return false;
 }
 
 void UpdateGame() { 
 	Frames_Counter++; 
+	if (boxers[0].Stamina > 100) {
+		boxers[0].Stamina = 100;
+	}
+	if (boxers[1].Stamina > 100) {
+		boxers[1].Stamina = 100;
+	}
+
 	if (Frames_Counter %10 == 0) {
 		if (boxers[0].Stamina < 100) 
 		{
@@ -359,6 +376,8 @@ void UpdateGame() {
 			boxers[0].Stamina -= 20;
 		}
 	}
+	bool hit1 = DoHit(boxers[1]);
+	
 	if (IsKeyPressed(KEY_TWO)) {
 		boxers[0].Block_Activate = true;
 	}
@@ -366,6 +385,9 @@ void UpdateGame() {
 		boxers[0].Block_Activate = false;
 	}
 	if (IsKeyPressed(KEY_THREE)) {
+		if (hit1) {
+			boxers[0].Stamina += 20;
+		}
 		boxers[0].Dodge_Activate = true;
 	}
 	if (IsKeyReleased(KEY_THREE)) {
@@ -383,6 +405,7 @@ void UpdateGame() {
 			boxers[1].Stamina -= 20;
 		}
 	}
+	bool hit0 = DoHit(boxers[0]);
 	if (IsKeyPressed(KEY_ZERO)) {
 		boxers[1].Block_Activate = true;
 	}
@@ -390,13 +413,14 @@ void UpdateGame() {
 		boxers[1].Block_Activate = false;
 	}
 	if (IsKeyPressed(KEY_NINE)) {
+		if(hit0){
+			boxers[1].Stamina += 20;
+		}
 		boxers[1].Dodge_Activate = true;
 	}
 	if (IsKeyReleased(KEY_NINE)) {
 		boxers[1].Dodge_Activate = false;
 	}
-	DoHit(boxers[0]);
-	DoHit(boxers[1]);
 
 	if (HandleHit(boxers[0].Body, boxers[1])  && !boxers[0].Dodge_Activate) {
 		if (boxers[0].Block_Activate) {
@@ -415,7 +439,7 @@ void UpdateGame() {
 		else
 		{
 			boxers[1].Health -= boxers[0].Attack;
-		}
+		} 
 	}
 
 	if (boxers[0].Health <= 0) {

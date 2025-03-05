@@ -348,13 +348,13 @@ void UpdateGame() {
 		return;
 	}
 	if (IsKeyPressed(KEY_Q)) {
-		if (boxers[0].Stamina > 0) {
+		if (boxers[0].Stamina > 0 && !boxers[0].Block_Activate && !boxers[0].Dodge_Activate) {
 			boxers[0].L_Attack = true;
 			boxers[0].Stamina -= 20;
 		}
 	}
 	if (IsKeyPressed(KEY_E)) {
-		if (boxers[0].Stamina > 0) {
+		if (boxers[0].Stamina > 0 && !boxers[0].Block_Activate && !boxers[0].Dodge_Activate) {
 			boxers[0].R_Attack = true;
 			boxers[0].Stamina -= 20;
 		}
@@ -372,13 +372,13 @@ void UpdateGame() {
 		boxers[0].Dodge_Activate = false;
 	}
 	if (IsKeyPressed(KEY_I)) {
-		if (boxers[1].Stamina > 0) {
+		if (boxers[1].Stamina > 0 && !boxers[1].Block_Activate && !boxers[1].Dodge_Activate) {
 			boxers[1].L_Attack = true;
 			boxers[1].Stamina -= 20;
 		}
 	}
 	if (IsKeyPressed(KEY_P)) {
-		if (boxers[1].Stamina > 0) {
+		if (boxers[1].Stamina > 0 && !boxers[1].Block_Activate && !boxers[1].Dodge_Activate) {
 			boxers[1].R_Attack = true;
 			boxers[1].Stamina -= 20;
 		}
@@ -398,20 +398,24 @@ void UpdateGame() {
 	DoHit(boxers[0]);
 	DoHit(boxers[1]);
 
-	if (HandleHit(boxers[0].Body, boxers[1]) && !boxers[1].Block_Activate && !boxers[0].Dodge_Activate) {
-		boxers[0].Health -= boxers[1].Attack;
-	}
-	if (HandleHit(boxers[1].Body, boxers[0]) && !boxers[0].Block_Activate && !boxers[1].Dodge_Activate) {
-		boxers[1].Health -= boxers[0].Attack;
-	}
+	if (HandleHit(boxers[0].Body, boxers[1])  && !boxers[0].Dodge_Activate) {
+		if (boxers[0].Block_Activate) {
 
-	if (boxers[0].Block_Activate || boxers[0].Dodge_Activate)
-	{
-		HandleHit(boxers[0].Block, boxers[1]);
+		boxers[0].Health -= boxers[1].Attack / 2;
+		}
+		else {
+		boxers[0].Health -= boxers[1].Attack;
+		}
 	}
-	if (boxers[1].Block_Activate || boxers[1].Dodge_Activate)
-	{
-		HandleHit(boxers[1].Block, boxers[0]);
+	if (HandleHit(boxers[1].Body, boxers[0])  && !boxers[1].Dodge_Activate) {
+		if (boxers[1].Block_Activate) 
+		{
+			boxers[1].Health -= boxers[0].Attack /2;
+		}
+		else
+		{
+			boxers[1].Health -= boxers[0].Attack;
+		}
 	}
 
 	if (boxers[0].Health <= 0) {

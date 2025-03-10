@@ -416,6 +416,7 @@ void UpdateGame() {
 		if(hit0){
 			boxers[1].Stamina += 20;
 		}
+		if (Frames_Counter %10 <= 3)
 		boxers[1].Dodge_Activate = true;
 	}
 	if (IsKeyReleased(KEY_NINE)) {
@@ -460,7 +461,7 @@ void DrawHealthBar(const int& Hp,const int& Max_Health,const int& counter) {
 	}
 	else {
 		DrawRectangle(MAX_WIDTH  - Max_Health, 0, Max_Health, 40, BLACK);
-		DrawRectangle(MAX_WIDTH - Max_Health, 0 + 5, Hp, 30, RED);
+		DrawRectangle(MAX_WIDTH -Hp, 0 + 5, Hp, 30, RED);
 	}
 }
 
@@ -473,7 +474,7 @@ void DrawStaminaBar(const int& Stamina, const int& Max_Stamina, const int& count
 	else
 	{
 		DrawRectangle(MAX_WIDTH - Max_Stamina, 30, Max_Stamina, 40, BLACK);
-		DrawRectangle(MAX_WIDTH - Max_Stamina, 30 + 5, Stamina, 30, GREEN);
+		DrawRectangle(MAX_WIDTH - Stamina, 30 + 5, Stamina, 30, GREEN);
 	}
 }
 /// <summary>

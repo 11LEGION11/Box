@@ -11,6 +11,8 @@ const int MAX_HEIGHT = 600;
 const Rectangle ground = { 0,MAX_HEIGHT - 100,MAX_WIDTH,100 };
 const Rectangle ground_Stamina = { 0,MAX_HEIGHT - 100,MAX_WIDTH,100 };
 int Frames_Counter = 0;
+int D1Frames_Counter = 0;
+int D2Frames_Counter = 0;
 
 struct Boxer {
 	Vector2 Position;
@@ -390,8 +392,12 @@ void UpdateGame() {
 		}
 		boxers[0].Dodge_Activate = true;
 	}
-	if (IsKeyReleased(KEY_THREE)) {
+	if (boxers[0].Dodge_Activate) {
+		D1Frames_Counter++;
+	}
+	if (D1Frames_Counter>120) {
 		boxers[0].Dodge_Activate = false;
+		D1Frames_Counter = 0;
 	}
 	if (IsKeyPressed(KEY_I)) {
 		if (boxers[1].Stamina > 0 && !boxers[1].Block_Activate && !boxers[1].Dodge_Activate) {
@@ -416,11 +422,14 @@ void UpdateGame() {
 		if(hit0){
 			boxers[1].Stamina += 20;
 		}
-		if (Frames_Counter %10 <= 3)
 		boxers[1].Dodge_Activate = true;
 	}
-	if (IsKeyReleased(KEY_NINE)) {
+	if (boxers[1].Dodge_Activate) {
+		D2Frames_Counter++;
+	}
+	if (D2Frames_Counter > 120) {
 		boxers[1].Dodge_Activate = false;
+		D2Frames_Counter = 0;
 	}
 
 	if (HandleHit(boxers[0].Body, boxers[1])  && !boxers[0].Dodge_Activate) {

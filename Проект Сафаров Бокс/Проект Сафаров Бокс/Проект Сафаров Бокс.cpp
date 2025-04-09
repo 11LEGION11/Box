@@ -23,6 +23,7 @@ struct Boxer {
 	bool Block_Activate;
 	bool L_Attack;
 	bool R_Attack;
+	bool Appercot;
 	int Max_Health;
 	int Health;
 	int Attack;
@@ -38,6 +39,7 @@ struct Boxer {
 	Texture2D Block_Texture;
 	Texture2D L_Attack_Texture;
 	Texture2D R_Attack_Texture;
+	Texture2D Appercot_Texture;
 	Texture2D Lose;
 	bool Lose_Activate;
 	bool Dodge_Activate;
@@ -56,6 +58,7 @@ const char* L_Attack_filename = "./Assets/Sprite/James.png";
 const char* R_Attack_filename = "./Assets/Sprite/James.png";
 const char* Dodge_filename = "./Assets/Sprite/James.png";
 const char* Lose_filename = "./Assets/Sprite/James.png";
+const char* Appercot_filename = "./Assets/Sprite/James.png";
 Texture2D Ground_Texture = { 0 };
 Texture2D Sky_Texture = { 0 };
 
@@ -135,14 +138,17 @@ void InitGame()
 	bool Block_Activate = false;
 	bool first_L_attack = false;
 	bool first_R_attack = false;
+	bool Appercot = false;
 	bool Dodge_Activate = false;
 	bool Lose_Activate = false;
+	
 	Texture2D body_texture;
 	Texture2D block_texture;
 	Texture2D l_hand_texture;
 	Texture2D r_hand_texture;
 	Texture2D L_Attack_Texture;
 	Texture2D R_Attack_Texture;
+	Texture2D Appercot_Texture;
 	Texture2D Lose;
 	Texture2D Dodge_Texture;
 
@@ -181,6 +187,15 @@ void InitGame()
 		R_Attack_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+	image = LoadImage(Appercot_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 70,70,43,67 });
+		ImageResize(&image, 220, Body.height);
+		Appercot_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 	image = LoadImage(Lose_filename);
 	{
 		ImageCrop(&image, { 173,243,65,33 });
@@ -202,14 +217,17 @@ void InitGame()
 		position,speed1,
 		l_hand_pos,r_hand_pos,
 		Block_Position, Block_Activate,
-		first_L_attack,first_R_attack,
+		first_L_attack,first_R_attack,Appercot,
 		Max_Health,Hp,Attack,Stamina,Max_Stamina,Body,
 		L_Hand,R_Hand,Block,
 		Hands_color,
 		body_texture,
 		block_texture,
 		L_Attack_Texture,
-		R_Attack_Texture,Lose,Lose_Activate,
+		R_Attack_Texture,
+		Appercot_Texture,
+		Lose,
+		Lose_Activate,
 		Dodge_Activate,
 		Dodge_Texture
 	};
@@ -268,6 +286,16 @@ void InitGame()
 		R_Attack_Texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 	}
+	image = LoadImage(Appercot_filename);
+
+	if (image.data != NULL)
+	{
+		ImageCrop(&image, { 70,70,43,67 });
+		ImageResize(&image, 220, Body.height);
+		ImageFlipHorizontal(&image);
+		Appercot_Texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
 	image = LoadImage(Lose_filename);
 
 	if (image.data != NULL)
@@ -293,14 +321,16 @@ void InitGame()
 		position2,speed2,
 		l_hand_pos2,r_hand_pos2,
 		Block_Position2, Block_Activate2,
-		second_L_attack,second_R_attack
-		,Max_Health,Hp,Attack,Stamina,Max_Stamina, Body2,
+		second_L_attack,second_R_attack,
+		Appercot, Max_Health,Hp,Attack,Stamina,Max_Stamina, Body2,
 		L_Hand2,R_Hand2,Block2,
 		Hands_color2,
 		body_texture,
 		block_texture,
 		L_Attack_Texture,
-		R_Attack_Texture,Lose,Lose_Activate,
+		R_Attack_Texture,
+		Appercot_Texture,
+		Lose,Lose_Activate,
 		Dodge_Activate,
 		Dodge_Texture,
 	};
@@ -332,6 +362,11 @@ bool DoHit(Boxer& boxer) {
 
 	}
 	if (boxer.R_Attack)
+	{
+		boxer.R_Hand.x += boxer.Speed.x;
+		return true;
+	}
+	if (boxer.Appercot)
 	{
 		boxer.R_Hand.x += boxer.Speed.x;
 		return true;
@@ -378,6 +413,12 @@ void UpdateGame() {
 			boxers[0].Stamina -= 20;
 		}
 	}
+	if (IsKeyReleased(KEY_ONE)) {
+			if (boxers[0].Stamina > 0 && !boxers[0].Block_Activate && !boxers[0].Dodge_Activate) {
+				boxers[0].Appercot = true;
+				boxers[0].Stamina -= 25;
+			}
+	}
 	bool hit1 = DoHit(boxers[1]);
 	
 	if (IsKeyPressed(KEY_TWO)) {
@@ -386,6 +427,7 @@ void UpdateGame() {
 	if (IsKeyReleased(KEY_TWO)) {
 		boxers[0].Block_Activate = false;
 	}
+	
 	if (IsKeyPressed(KEY_THREE)) {
 		if (hit1) {
 			boxers[0].Stamina += 20;
@@ -418,6 +460,12 @@ void UpdateGame() {
 	if (IsKeyReleased(KEY_ZERO)) {
 		boxers[1].Block_Activate = false;
 	}
+	if (IsKeyReleased(KEY_EIGHT)) {
+		if (boxers[1].Stamina > 0 && !boxers[1].Block_Activate && !boxers[1].Dodge_Activate) {
+			boxers[1].Appercot = true;
+			boxers[1].Stamina -= 25;
+		}
+	}
 	if (IsKeyPressed(KEY_NINE)) {
 		if(hit0){
 			boxers[1].Stamina += 20;
@@ -432,13 +480,22 @@ void UpdateGame() {
 		D2Frames_Counter = 0;
 	}
 
-	if (HandleHit(boxers[0].Body, boxers[1])  && !boxers[0].Dodge_Activate) {
+	if (HandleHit(boxers[0].Body, boxers[1]) && !boxers[0].Dodge_Activate) {
 		if (boxers[0].Block_Activate) {
 
-		boxers[0].Health -= boxers[1].Attack / 2;
+			boxers[0].Health -= boxers[1].Attack / 2;
 		}
-		else {
-		boxers[0].Health -= boxers[1].Attack;
+		else
+		{
+			if (boxers[1].Appercot)
+			{
+				boxers[0].Health -= boxers[1].Attack * 2;
+			}
+			else
+			{
+				boxers[0].Health -= boxers[1].Attack;
+			}
+			boxers[1].Appercot = false;
 		}
 	}
 	if (HandleHit(boxers[1].Body, boxers[0])  && !boxers[1].Dodge_Activate) {
@@ -448,8 +505,16 @@ void UpdateGame() {
 		}
 		else
 		{
+			if (boxers[0].Appercot) {
+
+			boxers[1].Health -= boxers[0].Attack * 2;
+			}
+			else {
+
 			boxers[1].Health -= boxers[0].Attack;
-		} 
+			}
+		}
+		boxers[0].Appercot = false;
 	}
 
 	if (boxers[0].Health <= 0) {
@@ -520,6 +585,13 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x - 100, boxer.Position.y, RAYWHITE);
 		else
 			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
+	}
+	else if (boxer.Appercot) 
+	{
+	if (counter % 2 == 1)
+		DrawTexture(boxer.Appercot_Texture, boxer.Position.x - 100, boxer.Position.y, RAYWHITE);
+	else 		
+		DrawTexture(boxer.Appercot_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
 	else if (boxer.Lose_Activate) {
 		DrawTexture(boxer.Lose, boxer.Position.x, boxer.Position.y + 100, RAYWHITE);

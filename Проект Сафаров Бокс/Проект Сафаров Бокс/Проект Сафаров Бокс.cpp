@@ -14,6 +14,21 @@ int Frames_Counter = 0;
 int D1Frames_Counter = 0;
 int D2Frames_Counter = 0;
 
+const char* sky_filename = "./Assets/cloud2.png";
+const char* ground_filename = "./Assets/moss2.png";
+const char* boxer1_filename = "./Assets/Sprite/James.png";
+const char* boxer2_filename = "./Assets/Sprite/James.png";
+const char* Block_filename = "./Assets/Sprite/James.png";
+const char* Block2_filename = "./Assets/Sprite/James.png";
+const char* L_Attack_filename = "./Assets/Sprite/James.png";
+const char* R_Attack_filename = "./Assets/Sprite/James.png";
+const char* Dodge_filename = "./Assets/Sprite/James.png";
+const char* Lose_filename = "./Assets/Sprite/James.png";
+const char* Appercot_filename = "./Assets/Sprite/James.png";
+Texture2D Ground_Texture = { 0 };
+Texture2D Sky_Texture = { 0 };
+
+
 struct Boxer {
 	Vector2 Position;
 	Vector2 Speed;
@@ -43,24 +58,109 @@ struct Boxer {
 	bool Lose_Activate;
 	bool Dodge_Activate;
 	Texture2D Dodge_Texture;
+
+	Boxer(Vector2 position, bool direction) :Position(position) {
+		if (direction)
+			Speed = { 10, -5 };
+		else
+			Speed = { -10,-5 };
+
+		Body = { position.x,position.y,120,MAX_HEIGHT / 2 };
+
+		Vector2 l_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 };
+		L_Hand = { l_hand_pos.x,l_hand_pos.y,40,40 };
+		Vector2 r_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 - 50 };
+		R_Hand = { r_hand_pos.x,r_hand_pos.y,40,40 };
+		if (direction)
+			Hands_Color = RED; 
+		else
+			Hands_Color = RED; 
+		Health = 100;
+		Max_Health = 100;
+		Attack = 10;
+		Stamina = 100;
+		Max_Stamina = 100;
+		Block_Position = r_hand_pos;
+		Block = { r_hand_pos.x,r_hand_pos.y,20,70 };
+		Block_Activate = false;
+		Dodge_Activate = false;
+		Lose_Activate = false;
+		Image image = LoadImage(boxer1_filename);
+		if (image.data != NULL)
+		{
+			ImageCrop(&image, { 0,4,36,66 });
+			ImageResize(&image, Body.width, Body.height);
+			if(!direction)
+				ImageFlipHorizontal(&image);
+			
+			Body_Texture = LoadTextureFromImage(image);
+			UnloadImage(image);
+		}
+		image = LoadImage(Block_filename);
+		if (image.data != NULL)
+		{
+			//290,150,25*50
+			ImageCrop(&image, { 0,140,34,65 });
+			ImageResize(&image, Body.width, Body.height);
+			if(!direction)
+				ImageFlipHorizontal(&image);
+			Block_Texture = LoadTextureFromImage(image);
+			UnloadImage(image);
+		}
+		image = LoadImage(L_Attack_filename);
+		if (image.data != NULL)
+		{
+			ImageCrop(&image, { 154,73,46,65 });
+			ImageResize(&image, 220, Body.height);
+			if (!direction)
+				ImageFlipHorizontal(&image);
+			L_Attack_Texture = LoadTextureFromImage(image);
+			UnloadImage(image);
+		}
+		image = LoadImage(R_Attack_filename);
+		if (image.data != NULL)
+		{
+			ImageCrop(&image, { 150,1,50,69 });
+			ImageResize(&image, 220, Body.height);
+			if (!direction)
+				ImageFlipHorizontal(&image);
+			R_Attack_Texture = LoadTextureFromImage(image);
+			UnloadImage(image);
+		}
+		image = LoadImage(Appercot_filename);
+
+		if (image.data != NULL)
+		{
+			ImageCrop(&image, { 70,70,43,67 });
+			ImageResize(&image, 220, Body.height); 
+			if (!direction)
+				ImageFlipHorizontal(&image);
+			Appercot_Texture = LoadTextureFromImage(image);
+			UnloadImage(image);
+		}
+		image = LoadImage(Lose_filename);
+		{
+			ImageCrop(&image, { 173,243,65,33 });
+			ImageResize(&image, 220, Body.height);
+			if (!direction)
+				ImageFlipHorizontal(&image);
+			Lose = LoadTextureFromImage(image);
+			UnloadImage(image);
+		}
+		image = LoadImage(Dodge_filename);
+
+		if (image.data != NULL)
+		{
+			ImageCrop(&image, { 133, 140, 37, 60 });
+			ImageResize(&image, Body.width, Body.height); if (!direction)
+				ImageFlipHorizontal(&image);
+			Dodge_Texture = LoadTextureFromImage(image);
+			UnloadImage(image);
+		}
+	}
 };
 
 std::vector<Boxer> boxers = {};
-
-const char* sky_filename = "./Assets/cloud2.png";
-const char* ground_filename = "./Assets/moss2.png";
-const char* boxer1_filename = "./Assets/Sprite/James.png";
-const char* boxer2_filename = "./Assets/Sprite/James.png";
-const char* Block_filename = "./Assets/Sprite/James.png";
-const char* Block2_filename = "./Assets/Sprite/James.png";
-const char* L_Attack_filename = "./Assets/Sprite/James.png";
-const char* R_Attack_filename = "./Assets/Sprite/James.png";
-const char* Dodge_filename = "./Assets/Sprite/James.png";
-const char* Lose_filename = "./Assets/Sprite/James.png";
-const char* Appercot_filename = "./Assets/Sprite/James.png";
-Texture2D Ground_Texture = { 0 };
-Texture2D Sky_Texture = { 0 };
-
 struct Wall {
 	Vector2 position;
 	float width;
@@ -119,218 +219,13 @@ void InitGame()
 
 	boxers.clear();
 	GameOver = false;
-	Vector2 speed1 = { 10,-5 };
+
 	Vector2 position = { MAX_WIDTH / 6,MAX_HEIGHT / 2 - 90 };
-	Rectangle Body = { position.x,position.y,120,MAX_HEIGHT / 2 };
-	Vector2 l_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 };
-	Rectangle L_Hand = { l_hand_pos.x,l_hand_pos.y,40,40 };
-	Vector2 r_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 - 50 };
-	Rectangle R_Hand = { r_hand_pos.x,r_hand_pos.y,40,40 };
-	Color Hands_color = RED;
-	int Hp = 100;
-	int Max_Health = 100;
-	int Attack = 10;
-	int Stamina = 100;
-	int Max_Stamina = 100;
-	Vector2 Block_Position = r_hand_pos;
-	Rectangle Block = { r_hand_pos.x,r_hand_pos.y,20,70 };
-	bool Block_Activate = false;
-	bool first_L_attack = false;
-	bool first_R_attack = false;
-	bool Dodge_Activate = false;
-	bool Lose_Activate = false;
-
-	Texture2D body_texture;
-	Texture2D block_texture;
-	Texture2D l_hand_texture;
-	Texture2D r_hand_texture;
-	Texture2D L_Attack_Texture;
-	Texture2D R_Attack_Texture;
-	Texture2D Appercot_Texture;
-	Texture2D Lose;
-	Texture2D Dodge_Texture;
-
-	image = LoadImage(boxer1_filename);
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 0,4,36,66 });
-		ImageResize(&image, Body.width, Body.height);
-		body_texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(Block_filename);
-	if (image.data != NULL)
-	{
-		//290,150,25*50
-		ImageCrop(&image, { 0,140,34,65 });
-		ImageResize(&image, Body.width, Body.height);
-		block_texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(L_Attack_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 154,73,46,65 });
-		ImageResize(&image, 220, Body.height);
-		L_Attack_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(R_Attack_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 150,1,50,69 });
-		ImageResize(&image, 220, Body.height);
-		R_Attack_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(Appercot_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 70,70,43,67 });
-		ImageResize(&image, 220, Body.height);
-		Appercot_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(Lose_filename);
-	{
-		ImageCrop(&image, { 173,243,65,33 });
-		ImageResize(&image, 220, Body.height);
-		Lose = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(Dodge_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 133, 140, 37, 60 });
-		ImageResize(&image, Body.width, Body.height);
-		Dodge_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-
-	Boxer boxer1 = {
-		position,speed1,
-		l_hand_pos,r_hand_pos,
-		Block_Position, Block_Activate,
-		first_L_attack,first_R_attack,
-		Max_Health,Hp,Attack,Stamina,Max_Stamina,Body,
-		L_Hand,R_Hand,Block,
-		Hands_color,
-		body_texture,
-		block_texture,
-		L_Attack_Texture,
-		R_Attack_Texture,
-		Appercot_Texture,
-		Lose,
-		Lose_Activate,
-		Dodge_Activate,
-		Dodge_Texture
-	};
+	Boxer boxer1 = {position,true};
 	boxers.push_back(boxer1);
 
-	Vector2 speed2 = { -10,-5 };
 	Vector2 position2 = { MAX_WIDTH / 1.5,MAX_HEIGHT / 2 - 90 };
-	Rectangle Body2 = { position2.x,position2.y,120,MAX_HEIGHT / 2 };
-	Vector2 l_hand_pos2 = { Body2.x + Body2.width - 170,Body2.y + Body2.height / 2 };
-	Rectangle L_Hand2 = { l_hand_pos2.x,l_hand_pos2.y, 40, 40 };
-	Vector2 r_hand_pos2 = { Body2.x + Body2.width - 170,Body2.y + Body2.height / 2 - 50 };
-	Rectangle R_Hand2 = { r_hand_pos2.x, r_hand_pos2.y,40,40 };
-	Color Hands_color2 = DARKBLUE;
-
-	Vector2 Block_Position2 = r_hand_pos2;
-	Rectangle Block2 = { r_hand_pos2.x,r_hand_pos2.y,20,70 };
-	bool Block_Activate2 = false;
-	bool second_L_attack = false;
-	bool second_R_attack = false;
-	Lose_Activate = false;
-	image = LoadImage(boxer2_filename);
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 0,4,36,66 });
-		ImageResize(&image, Body2.width, Body2.height);
-		ImageFlipHorizontal(&image);
-		body_texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(Block2_filename);
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 0,140,34,65 });
-		ImageResize(&image, Body2.width, Body2.height);
-		ImageFlipHorizontal(&image);
-		block_texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(L_Attack_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 154,73,46,65 });
-		ImageResize(&image, 220, Body2.height);
-		ImageFlipHorizontal(&image);
-		L_Attack_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(R_Attack_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 150,1,50,69 });
-		ImageResize(&image, 220, Body2.height);
-		ImageFlipHorizontal(&image);
-		R_Attack_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(Appercot_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 70,70,43,67 });
-		ImageResize(&image, 220, Body.height);
-		ImageFlipHorizontal(&image);
-		Appercot_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(Lose_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 173, 243, 65, 33 });
-		ImageResize(&image, 220, Body.height);
-		ImageFlipHorizontal(&image);
-		Lose = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-	image = LoadImage(Dodge_filename);
-
-	if (image.data != NULL)
-	{
-		ImageCrop(&image, { 133, 140, 37, 60 });
-		ImageResize(&image, Body.width, Body.height);
-		ImageFlipHorizontal(&image);
-		Dodge_Texture = LoadTextureFromImage(image);
-		UnloadImage(image);
-	}
-
-	Boxer boxer2 = {
-		position2,speed2,
-		l_hand_pos2,r_hand_pos2,
-		Block_Position2, Block_Activate2,
-		second_L_attack,second_R_attack, Max_Health,Hp,Attack,Stamina,Max_Stamina, Body2,
-		L_Hand2,R_Hand2,Block2,
-		Hands_color2,
-		body_texture,
-		block_texture,
-		L_Attack_Texture,
-		R_Attack_Texture,
-		Appercot_Texture,
-		Lose,Lose_Activate,
-		Dodge_Activate,
-		Dodge_Texture,
-	};
+	Boxer boxer2 = {position2,false};
 	boxers.push_back(boxer2);
 }
 bool HandleHit(const Rectangle& body, Boxer& boxer) {

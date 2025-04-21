@@ -64,17 +64,30 @@ struct Boxer {
 			Speed = { 10, -5 };
 		else
 			Speed = { -10,-5 };
-
 		Body = { position.x,position.y,120,MAX_HEIGHT / 2 };
 
-		Vector2 l_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 };
-		L_Hand = { l_hand_pos.x,l_hand_pos.y,40,40 };
-		Vector2 r_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 - 50 };
-		R_Hand = { r_hand_pos.x,r_hand_pos.y,40,40 };
+		Vector2 l_hand_pos; 
+		Vector2 r_hand_pos;
+		if(direction)
+		{
+			l_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 2 };
+			r_hand_pos = { Body.x + Body.width + 30,Body.y + Body.height / 3 };
+		}
+		else {
+			l_hand_pos = { Body.x -200  + Body.width + 30,Body.y + Body.height / 2 };
+			r_hand_pos = { Body.x -200 + Body.width + 30,Body.y + Body.height / 3 };
+		}
 		if (direction)
 			Hands_Color = RED; 
 		else
-			Hands_Color = RED; 
+			Hands_Color = BLUE; 
+		L_Hand_Start_Position = l_hand_pos;
+		R_Hand_Start_Position = r_hand_pos;
+		L_Hand = { l_hand_pos.x,l_hand_pos.y,40,40 };
+		R_Hand = { r_hand_pos.x,r_hand_pos.y,40,40 };
+		Block = { r_hand_pos.x,r_hand_pos.y,20,70 };
+		L_Attack = false;
+		R_Attack = false;
 		Health = 100;
 		Max_Health = 100;
 		Attack = 10;
@@ -134,7 +147,7 @@ struct Boxer {
 			ImageCrop(&image, { 70,70,43,67 });
 			ImageResize(&image, 220, Body.height); 
 			if (!direction)
-				ImageFlipHorizontal(&image);
+			ImageFlipHorizontal(&image);
 			Appercot_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
@@ -296,18 +309,21 @@ void UpdateGame() {
 	if (IsKeyPressed(KEY_Q)) {
 		if (boxers[0].Stamina > 0 && !boxers[0].Block_Activate && !boxers[0].Dodge_Activate) {
 			boxers[0].L_Attack = true;
+			boxers[0].Attack = 10;
 			boxers[0].Stamina -= 20;
 		}
 	}
 	if (IsKeyPressed(KEY_E)) {
 		if (boxers[0].Stamina > 0 && !boxers[0].Block_Activate && !boxers[0].Dodge_Activate) {
 			boxers[0].R_Attack = true;
+			boxers[0].Attack = 10;
 			boxers[0].Stamina -= 20;
 		}
 	}
 	if (IsKeyReleased(KEY_ONE)) {
 		if (boxers[0].Stamina > 0 && !boxers[0].Block_Activate && !boxers[0].Dodge_Activate) {
 			boxers[0].R_Attack = true;
+			boxers[0].Attack = 20;
 			boxers[0].Stamina -= 25;
 		}
 	}
@@ -336,12 +352,14 @@ void UpdateGame() {
 	if (IsKeyPressed(KEY_I)) {
 		if (boxers[1].Stamina > 0 && !boxers[1].Block_Activate && !boxers[1].Dodge_Activate) {
 			boxers[1].L_Attack = true;
+			boxers[1].Attack = 10;
 			boxers[1].Stamina -= 20;
 		}
 	}
 	if (IsKeyPressed(KEY_P)) {
 		if (boxers[1].Stamina > 0 && !boxers[1].Block_Activate && !boxers[1].Dodge_Activate) {
 			boxers[1].R_Attack = true;
+			boxers[1].Attack = 10;
 			boxers[1].Stamina -= 20;
 		}
 	}
@@ -355,6 +373,7 @@ void UpdateGame() {
 	if (IsKeyReleased(KEY_EIGHT)) {
 		if (boxers[1].Stamina > 0 && !boxers[1].Block_Activate && !boxers[1].Dodge_Activate) {
 			boxers[1].R_Attack = true;
+			boxers[1].Attack = 20;
 			boxers[1].Stamina -= 25;
 		}
 	}
@@ -467,7 +486,7 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 		else
 			DrawTexture(boxer.L_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
-	else if (boxer.R_Attack)
+	else if (boxer.R_Attack && boxer.Attack == 10)
 	{
 		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
 		if (counter % 2 == 1)
@@ -475,14 +494,11 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 		else
 			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
-	else if (boxer.R_Attack)
+	else if (boxer.R_Attack && boxer.Attack == 20)
 	{
-		if (boxers[0].R_Attack) {
-
-			boxers[1].Health -= boxers[0].Attack * 2;
+		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+		if (counter % 2 == 1)
 			DrawTexture(boxer.Appercot_Texture, boxer.Position.x - 100, boxer.Position.y, RAYWHITE);
-		}
-		
 		else
 			DrawTexture(boxer.Appercot_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}

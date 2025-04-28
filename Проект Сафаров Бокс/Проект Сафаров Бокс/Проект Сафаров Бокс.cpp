@@ -17,14 +17,19 @@ int D2Frames_Counter = 0;
 const char* sky_filename = "./Assets/cloud2.png";
 const char* ground_filename = "./Assets/moss2.png";
 const char* boxer1_filename = "./Assets/Sprite/James.png";
-const char* boxer2_filename = "./Assets/Sprite/James.png";
+const char* boxer2_filename = "./Assets/Sprite/Bond.png";
 const char* Block_filename = "./Assets/Sprite/James.png";
-const char* Block2_filename = "./Assets/Sprite/James.png";
+const char* Block2_filename = "./Assets/Sprite/Bond.png";
 const char* L_Attack_filename = "./Assets/Sprite/James.png";
+const char* L_Attack2_filename = "./Assets/Sprite/Bond.png";
 const char* R_Attack_filename = "./Assets/Sprite/James.png";
+const char* R_Attack2_filename = "./Assets/Sprite/Bond.png";
 const char* Dodge_filename = "./Assets/Sprite/James.png";
+const char* Dodge2_filename = "./Assets/Sprite/Bond.png";
 const char* Lose_filename = "./Assets/Sprite/James.png";
+const char* Lose2_filename = "./Assets/Sprite/Bond.png";
 const char* Appercot_filename = "./Assets/Sprite/James.png";
+const char* Appercot2_filename = "./Assets/Sprite/Bond.png";
 Texture2D Ground_Texture = { 0 };
 Texture2D Sky_Texture = { 0 };
 
@@ -98,7 +103,11 @@ struct Boxer {
 		Block_Activate = false;
 		Dodge_Activate = false;
 		Lose_Activate = false;
-		Image image = LoadImage(boxer1_filename);
+		Image image; 
+		if (!direction)
+			image = LoadImage(boxer2_filename);
+		else
+			image = LoadImage(boxer1_filename);
 		if (image.data != NULL)
 		{
 			ImageCrop(&image, { 0,4,36,66 });
@@ -109,7 +118,10 @@ struct Boxer {
 			Body_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
-		image = LoadImage(Block_filename);
+		if (!direction)
+			image = LoadImage(Block2_filename);
+		else
+			image = LoadImage(Block_filename);
 		if (image.data != NULL)
 		{
 			//290,150,25*50
@@ -120,7 +132,10 @@ struct Boxer {
 			Block_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
-		image = LoadImage(L_Attack_filename);
+		if (!direction)
+			image = LoadImage(L_Attack2_filename);
+		else
+			image = LoadImage(L_Attack_filename);
 		if (image.data != NULL)
 		{
 			ImageCrop(&image, { 154,73,46,65 });
@@ -130,7 +145,10 @@ struct Boxer {
 			L_Attack_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
-		image = LoadImage(R_Attack_filename);
+		if (!direction)
+			image = LoadImage(R_Attack2_filename);
+		else
+			image = LoadImage(R_Attack_filename);
 		if (image.data != NULL)
 		{
 			ImageCrop(&image, { 150,1,50,69 });
@@ -140,8 +158,10 @@ struct Boxer {
 			R_Attack_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
-		image = LoadImage(Appercot_filename);
-
+		if (!direction)
+			image = LoadImage(Appercot2_filename);
+		else
+			image = LoadImage(Appercot_filename);
 		if (image.data != NULL)
 		{
 			ImageCrop(&image, { 70,70,43,67 });
@@ -151,7 +171,10 @@ struct Boxer {
 			Appercot_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
-		image = LoadImage(Lose_filename);
+		if (!direction)
+			image = LoadImage(Lose2_filename);
+		else
+			image = LoadImage(Lose_filename);
 		{
 			ImageCrop(&image, { 173,243,65,33 });
 			ImageResize(&image, 220, Body.height);
@@ -160,8 +183,10 @@ struct Boxer {
 			Lose = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
-		image = LoadImage(Dodge_filename);
-
+		if (!direction)
+			image = LoadImage(Dodge2_filename);
+		else
+			image = LoadImage(Dodge_filename);
 		if (image.data != NULL)
 		{
 			ImageCrop(&image, { 133, 140, 37, 60 });

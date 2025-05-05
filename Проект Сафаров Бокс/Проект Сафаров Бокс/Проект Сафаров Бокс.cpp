@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "raylib.h"
-#include "raymath.h"
+#include "raymath.h",
 #include <vector>
 
 const int MAX_WIDTH = 800;
@@ -53,7 +53,7 @@ struct Boxer {
 	Rectangle R_Hand;
 	Rectangle Block;
 	Color Hands_Color;
-
+	int Death = 0;
 	Texture2D Body_Texture;
 	Texture2D Block_Texture;
 	Texture2D L_Attack_Texture;
@@ -195,6 +195,16 @@ struct Boxer {
 			Dodge_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
+	}
+
+	void Respawn() {
+		L_Attack = false;
+		R_Attack = false;
+		Health = 100;
+		Max_Health = 100;
+		Attack = 10;
+		Stamina = 100;
+		Max_Stamina = 100;
 	}
 };
 
@@ -452,12 +462,28 @@ void UpdateGame() {
 	}
 
 	if (boxers[0].Health <= 0) {
-		GameOver = true;
-		boxers[0].Lose_Activate = true;
+		boxers[0].Death++;
+		if (boxers[0].Death == 3)
+		{
+			boxers[0].Lose_Activate = true;
+			GameOver = true;
+			return;
+		}
+		boxers[0].Respawn();
+		boxers[1].Respawn();
+			//InitGame();
 	}
 	if (boxers[1].Health <= 0) {
-		GameOver = true;
-		boxers[1].Lose_Activate = true;
+		boxers[1].Death++;
+		if (boxers[1].Death == 3)
+		{
+			boxers[1].Lose_Activate = true;
+			GameOver = true;
+			return;
+		}
+		boxers[0].Respawn();
+		boxers[1].Respawn();
+			//InitGame();
 	}
 }
 void DrawHealthBar(const int& Hp, const int& Max_Health, const int& counter) {

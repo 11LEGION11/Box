@@ -30,6 +30,7 @@ const char* Lose_filename = "./Assets/Sprite/James.png";
 const char* Lose2_filename = "./Assets/Sprite/Bond.png";
 const char* Appercot_filename = "./Assets/Sprite/James.png";
 const char* Appercot2_filename = "./Assets/Sprite/Bond.png";
+const char* Death_filename = "./Assets/Health/Heart.png";
 Texture2D Ground_Texture = { 0 };
 Texture2D Sky_Texture = { 0 };
 
@@ -60,6 +61,7 @@ struct Boxer {
 	Texture2D R_Attack_Texture;
 	Texture2D Appercot_Texture;
 	Texture2D Lose;
+	Texture2D Death_Texture;
 	bool Lose_Activate;
 	bool Dodge_Activate;
 	Texture2D Dodge_Texture;
@@ -114,7 +116,6 @@ struct Boxer {
 			ImageResize(&image, Body.width, Body.height);
 			if(!direction)
 				ImageFlipHorizontal(&image);
-			
 			Body_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
@@ -193,6 +194,13 @@ struct Boxer {
 			ImageResize(&image, Body.width, Body.height); if (!direction)
 				ImageFlipHorizontal(&image);
 			Dodge_Texture = LoadTextureFromImage(image);
+			UnloadImage(image);
+		}
+		image = LoadImage(Death_filename);
+		if (image.data != NULL)
+		{
+			ImageResize(&image, 30, 30);
+			Death_Texture = LoadTextureFromImage(image);
 			UnloadImage(image);
 		}
 	}
@@ -510,6 +518,24 @@ void DrawStaminaBar(const int& Stamina, const int& Max_Stamina, const int& count
 		DrawRectangle(MAX_WIDTH - Stamina, 30 + 5, Stamina, 30, GREEN);
 	}
 }
+void DrawDeathBar(const int& death, const int& counter) {
+	if (counter == 0)
+	{
+		for (int i = 0; i < 3 - death; i++)
+		{
+			DrawTexture(boxers[0].Death_Texture, 10 + i * (boxers[0].Death_Texture.width + 10), 75, RAYWHITE);
+
+		}
+	}
+	else
+	{
+		for (int i = 1; i <= 3 - death; i++)
+		{
+			DrawTexture(boxers[1].Death_Texture, MAX_WIDTH - i * (boxers[1].Death_Texture.width + 10), 75, RAYWHITE);
+
+		}
+	}
+}
 /// <summary>
 /// Рисуем боксеров
 /// </summary>
@@ -519,6 +545,7 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 
 	DrawHealthBar(boxer.Health, boxer.Max_Health, counter);
 	DrawStaminaBar(boxer.Stamina, boxer.Max_Stamina, counter);
+	DrawDeathBar(boxer.Death, counter);
 	if (boxer.Block_Activate) {
 		DrawRectangleRec(boxer.Block, boxer.Hands_Color);
 		DrawTexture(boxer.Block_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);

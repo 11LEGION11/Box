@@ -520,18 +520,18 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 	DrawHealthBar(boxer.Health, boxer.Max_Health, counter);
 	DrawStaminaBar(boxer.Stamina, boxer.Max_Stamina, counter);
 	if (boxer.Block_Activate) {
-		DrawRectangleRec(boxer.Block, boxer.Hands_Color);
+		//DrawRectangleRec(boxer.Block, boxer.Hands_Color);
 		DrawTexture(boxer.Block_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 		//DrawTexture(boxer.l_hand_Texture, boxer.L_Hand.x, boxer.Position.y, RAYWHITE);
 		//DrawTexture(boxer.r_hand_Texture, boxer.R_Hand.x, boxer.Position.y, RAYWHITE);
 	}
 	else if (boxer.Dodge_Activate) {
-		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+		//DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
 		DrawTexture(boxer.Dodge_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
 	}
 	else if (boxer.L_Attack)
 	{
-		DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
+		//DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
 		if (counter % 2 == 1)
 			DrawTexture(boxer.L_Attack_Texture, boxer.Position.x - 120, boxer.Position.y, RAYWHITE);
 		else
@@ -539,7 +539,7 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 	}
 	else if (boxer.R_Attack && boxer.Attack == 10)
 	{
-		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+		//DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
 		if (counter % 2 == 1)
 			DrawTexture(boxer.R_Attack_Texture, boxer.Position.x - 100, boxer.Position.y, RAYWHITE);
 		else
@@ -547,7 +547,7 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 	}
 	else if (boxer.R_Attack && boxer.Attack == 20)
 	{
-		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+		//DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
 		if (counter % 2 == 1)
 			DrawTexture(boxer.Appercot_Texture, boxer.Position.x - 100, boxer.Position.y, RAYWHITE);
 		else
@@ -558,8 +558,8 @@ void DrawBoxer(const Boxer& boxer, int counter) {
 	}
 	else {
 		DrawTexture(boxer.Body_Texture, boxer.Position.x, boxer.Position.y, RAYWHITE);
-		DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
-		DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
+		//DrawRectangleRec(boxer.L_Hand, boxer.Hands_Color);
+		//DrawRectangleRec(boxer.R_Hand, boxer.Hands_Color);
 		//DrawTexture(boxer.l_hand_Texture, boxer.L_Hand.x, boxer.L_Hand.y, RAYWHITE);
 		//DrawTexture(boxer.r_hand_Texture, boxer.R_Hand.x, boxer.R_Hand.y, RAYWHITE);
 	}
